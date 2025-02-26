@@ -1,9 +1,9 @@
-import Button from "../components/Button";
+import Footer from "../components/Footer/Footer";
 
 const App = () => {
     return (
         <div>
-            <Button />
+            <Footer />
         </div>
     )
 };
