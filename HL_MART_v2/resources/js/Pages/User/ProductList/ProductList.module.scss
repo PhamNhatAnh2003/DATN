@@ -1,0 +1,35 @@
+.container {
+    background-color: white;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.title {
+    padding: 10px 10px;
+    position: relative;
+    font-size: 24px;
+    color: var(--bg-secondary);
+    margin-bottom: 20px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+}
+
+.noProducts {
+    font-size: 20px;
+    color: var(--bg-secondary);
+    margin-bottom: 20px;
+    text-align: center;
+    padding: 50px 0;
+    height: 50px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}

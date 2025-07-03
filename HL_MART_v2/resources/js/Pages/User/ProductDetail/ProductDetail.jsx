@@ -1,0 +1,258 @@
+import classNames from "classnames/bind";
+import Card from "~/components/Card";
+import styles from "./ProductDetail.module.scss";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import Rating from "~/components/Rating";
+import Button from "~/components/Button";
+import { formatPrice } from "~/utils/format";
+import "react-multi-carousel/lib/styles.css";
+import Slider from "./Slider/Slider";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faBars,
+    faChevronLeft,
+    faClock,
+    faDoorOpen,
+    faLocation,
+    faLocationArrow,
+    faLocationDot,
+    faMoneyBill,
+} from "@fortawesome/free-solid-svg-icons";
+import CommentInput from "./CommentInput/CommentInput";
+import images from "~/assets/images";
+import { useCart } from "~/hooks/useCart";
+import { Input } from "~/components/Input";
+import config from "~/config";
+import { formatTimeStr } from "antd/es/statistic/utils";
+
+const cx = classNames.bind(styles);
+
+const ProductDetail = () => {
+    const navigate = useNavigate();
+    const { addToCart } = useCart(); // 🔥 Lấy hàm addToCart từ context
+    const { productId } = useParams();
+    const [product, setProduct] = useState(null);
+    const [reviews, setReviews] = useState([]);
+    const [specialProducts, setSpecialProducts] = useState([]);
+
+    const fetchReviews = async () => {
+        try {
+            const response = await axios.get("/api/reviews", {
+                params: { product_id: productId },
+            });
+            if (response.status === 200) {
+                setReviews(response.data.reviews);
+                // console.log("Danh sách đánh giá: ", response.data.reviews);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const fetchProduct = async () => {
+        try {
+            const response = await axios.get("/api/product", {
+                params: { id: productId },
+            });
+            if (response.status === 200) {
+                setProduct(response.data.product);
+                // console.log("Danh sách đánh giá: ", response.data.product);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        const fetchSpecialProducts = async () => {
+            if (!productId) return;
+
+            try {
+                const response = await axios.get(
+                    `/api/products/${productId}/recommendations`
+                );
+                console.log("Dữ liệu từ API:", response.data.recommendations);
+
+                if (response.status === 200) {
+                    setSpecialProducts(response.data.recommendations || []);
+                }
+            } catch (error) {
+                console.error("Lỗi khi lấy sản phẩm mới:", error);
+                setSpecialProducts([]);
+            }
+        };
+        fetchSpecialProducts();
+    }, [productId]);
+
+    useEffect(() => {
+        fetchProduct();
+        fetchReviews();
+    }, [productId]);
+
+    const formatDateTime = (dateTimeString) => {
+        const date = new Date(dateTimeString);
+
+        const hours = date.getHours().toString().padStart(2, "0");
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const day = date.getDate().toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Tháng trong JS bắt đầu từ 0
+        const year = date.getFullYear();
+
+        return `${hours}:${minutes} ${day}-${month}-${year}`;
+    };
+
+    const handleComment = () => {
+        fetchProduct();
+        fetchReviews();
+    };
+    const handleAddToCart = () => {
+        addToCart(product); // 🔥 Gọi hàm thêm vào giỏ hàng
+    };
+
+    return (
+        <>
+            {product && (
+                <main className={cx("product-detail")}>
+                    <div className={cx("content")}>
+                        <div
+                            className={cx("back-btn")}
+                            onClick={() => navigate(-1)}
+                        >
+                            <span >
+                                <Button primary>
+                                    <FontAwesomeIcon icon={faChevronLeft} />
+                                    Quay lại
+                                </Button>
+                            </span>
+                        </div>
+                        <div className={cx("line")}></div>
+
+                        <div className={cx("first-content")}>
+                            <div className={cx("slider-box")}>
+                                <Slider medias={product.media ?? []} />
+                            </div>
+
+                            <div className={cx("detail-box")}>
+                                <div className={cx("detail")}>
+                                    <div className={cx("name")}>
+                                        <strong>Tên sản phẩm:</strong>{" "}
+                                        <span>{product.name}</span>
+                                    </div>
+                                    <div className={cx("unit")}>
+                                        <strong>ĐVT:</strong>{" "}
+                                        <span>{product.unit}</span>
+                                    </div>
+                                    <div className={cx("price")}>
+                                        <strong>Giá bán:</strong>
+                                        <span>
+                                            {formatPrice(product.price)}
+                                        </span>
+                                    </div>
+                                    <div className={cx("price")}>
+                                        <strong>Giảm giá:</strong>
+                                        <span>
+                                            {formatPrice(
+                                                product.discount_price
+                                            )}
+                                        </span>
+                                    </div>
+                                    <div className={cx("description")}>
+                                        <strong>Mô tả:</strong>{" "}
+                                        <span>{product.description}</span>
+                                    </div>
+                                    <div className={cx("star")}>
+                                        <strong>Đánh giá</strong>{" "}
+                                        <span>
+                                            <Rating rate={product.rating} />
+                                        </span>
+                                    </div>
+                                    <div className={cx("stock")}>
+                                        <strong>Số lượng:</strong>{" "}
+                                        <span>{product.stock}</span>
+                                    </div>
+                                    <div className={cx("sold")}>
+                                        <strong>Đã bán:</strong>{" "}
+                                        <span>{product.sold}</span>
+                                    </div>
+                                </div>
+                                <div className={cx("btn")}>
+                                    <Button
+                                        className={cx("view-btn")}
+                                        secondary
+                                        curved
+                                        shadow
+                                        onClick={handleAddToCart}
+                                    >
+                                        Thêm vào giỏ
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className={cx("line")}></div>
+                        <CommentInput
+                            productId={productId}
+                            onUpload={handleComment}
+                        />
+
+                        <div className={cx("comment-box")}>
+                            {reviews.length > 0 &&
+                                reviews.map((review, index) => (
+                                    <div key={index} className={cx("comment")}>
+                                        <div className={cx("comment-left")}>
+                                            <img
+                                                src={
+                                                    review.user.avatar ??
+                                                    images.avatarUser
+                                                }
+                                                alt="avatar"
+                                            />
+                                        </div>
+                                        <div className={cx("comment-right")}>
+                                            <p className={cx("user-name")}>
+                                                {review.user.name}
+                                            </p>
+                                            <p className={cx("user-comment")}>
+                                                {review.comment}
+                                            </p>
+                                            {review.image && (
+                                                <img
+                                                    className={cx(
+                                                        "image-commnet"
+                                                    )}
+                                                    src={review.image}
+                                                    alt="img-commnet"
+                                                />
+                                            )}
+                                            <p className={cx("user-time")}>
+                                                {formatDateTime(
+                                                    review.created_at
+                                                )}
+                                            </p>
+                                            <Rating rate={review.rating} />
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                        <section className={cx("newStyleSection")}>
+                            <h2 className={cx("sectionHeading")}>
+                                CÁC SẢN PHẨM LIÊN QUAN
+                            </h2>
+
+                            <div className={cx("line")}></div>
+                            <div className={cx("productList")}>
+                                {specialProducts.map((product, index) => (
+                                    <Card key={index} product={product} />
+                                ))}
+                            </div>
+                        </section>
+                    </div>
+                </main>
+            )}
+        </>
+    );
+};
+
+export default ProductDetail;

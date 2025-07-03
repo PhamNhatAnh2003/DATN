@@ -1,0 +1,66 @@
+.container {
+    display: flex;
+    // width: 870px;
+    height: 74px;
+    background: white;
+    align-items: center;
+    font-family: "Roboto", sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: black;
+    padding-right: 20px;
+}
+
+.columnSTT,
+.columnImage,
+.columnName,
+.columnUnit,
+.columnPrice,
+.columnQuantity,
+.columnDelete {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.columnSTT {
+    width: 60px;
+}
+
+.columnImage {
+    width: 100px;
+}
+.columnImage img {
+    width: 80%; /* Chiếm toàn bộ chiều rộng của cột */
+    height: auto; /* Giữ tỷ lệ khung hình cho hình ảnh */
+    object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng và phủ đầy khu vực */
+    border-radius: 8px; /* Bo góc hình ảnh */
+    border: 1px solid #ddd; /* Đường viền mờ nhẹ */
+}
+
+.columnName {
+    width: 345px;
+}
+
+.columnUnit {
+    width: 100px;
+}
+
+.columnPrice {
+    width: 105px;
+}
+
+.columnUnit,
+.columnPrice,
+.columnQuantity {
+    width: 100px;
+    text-align: center;
+}
+
+.readonlyQuantity {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: #f3f3f3;
+    border-radius: 4px;
+}
